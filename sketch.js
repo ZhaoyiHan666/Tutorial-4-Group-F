@@ -10,8 +10,7 @@ function draw() {
   background("#1e2c3a");
   
   // how many circles we want to draw on the screen
-  let circleCount = 15;
-  randomSeed(20251114); 
+  let circleCount = 15; 
 
   // store placed circles to reduce overlap
   let placed = [];
