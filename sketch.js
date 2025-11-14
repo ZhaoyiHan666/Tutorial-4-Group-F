@@ -1,8 +1,10 @@
- //  Iteration 2
+//  Iteration 3 – small update on Version 2:
+// slightly less overlap + richer colours + no black centres
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   angleMode(DEGREES);
-    noLoop(); 
+  noLoop(); 
 }
 
 function draw() {
@@ -10,6 +12,10 @@ function draw() {
   
   // how many circles we want to draw on the screen
   let circleCount = 15;
+  randomSeed(20251114); // keep layout stable if needed
+
+  // store placed circles to reduce overlap
+  let placed = [];
 
   for (let i = 0; i < circleCount; i++) {
 
@@ -18,11 +24,34 @@ function draw() {
 
     // keep circles away from the edges
     let margin = size * 0.7;
-    let x = random(margin, width - margin);
-    let y = random(margin, height - margin);
+    let x, y;
+    let ok = false;
+    let tries = 0;
 
-    // draw one circle design
-    drawCircle(x, y, size);
+    // try a few times to avoid heavy overlap
+    while (!ok && tries < 200) {
+      x = random(margin, width - margin);
+      y = random(margin, height - margin);
+      ok = true;
+
+      for (let c of placed) {
+        let d = dist(x, y, c.x, c.y);
+        // allow some touching but avoid big overlaps (option B)
+        let minDist = (size * 0.5 + c.size * 0.5) * 0.9;
+        if (d < minDist) {
+          ok = false;
+          break;
+        }
+      }
+
+      tries++;
+    }
+
+    // only draw if we found a reasonable position
+    if (ok) {
+      placed.push({ x, y, size });
+      drawCircle(x, y, size);
+    }
   }
 }
 
@@ -31,9 +60,9 @@ function drawCircle(x, y, size) {
   push();
   translate(x, y);
 
-  // Background glow
+  // Background glow – use soft light instead of dark circle
   noStroke();
-  fill(0, 0, 0, 60); 
+  fill(255, 255, 255, 35); 
   ellipse(0, 0, size * 1.18);
 
   // main circle
@@ -48,33 +77,34 @@ function drawCircle(x, y, size) {
     ellipse(0, 0, r);
   }
 
-  // inside dots
-  fill("#E3F2FD");
+  // inside dots – now colourful (option B: medium richness)
   stroke(255);
+  strokeWeight(1.4);
   let insideDots = 16;
 
   for (let i = 0; i < insideDots; i++) {
     let angle = i * (360 / insideDots);
     let px = cos(angle) * (size * 0.38);
     let py = sin(angle) * (size * 0.38);
+    fill(randomInnerDotColor());
     ellipse(px, py, size * 0.09);
   }
 
-   // outside dots
+  // outside dots – keep halo, with some warm colour variation
   noStroke();
-  fill("#FF8A80");
-
-   let outsideDots = 32;
+  let outsideDots = 32;
 
   for (let i = 0; i < outsideDots; i++) {
     let angle = i * (360 / outsideDots);
     let px = cos(angle) * (size * 0.58);
     let py = sin(angle) * (size * 0.58);
+    fill(randomOuterDotColor());
     ellipse(px, py, size * 0.045);
   }
 
-   // 8 lines like wheel spokes
+  // 8 lines like wheel spokes
   stroke("#FFFFFF");
+  strokeWeight(2);
   for (let i = 0; i < 8; i++) {
     let angle = i * 45;
     let px = cos(angle) * (size * 0.43);
@@ -82,13 +112,15 @@ function drawCircle(x, y, size) {
     line(0, 0, px, py);
   }
 
-  // center dots
-  fill("#1e2c3a");
+  // center dots – no dark circle, lighter ring + colourful centre
+  fill("#FAFAFA");
   stroke("#FFFFFF");
+  strokeWeight(2);
   ellipse(0, 0, size * 0.15);
+
   noStroke();
-  fill("#FFFFFF");
-  ellipse(0,0,size*0.07)
+  fill(randomCenterDotColor());
+  ellipse(0, 0, size * 0.07);
 
   pop();
 }
@@ -102,5 +134,33 @@ function randomMainColor() {
 // random color for ring lines
 function randomRingColor() {
   let colors = ["#FFB300", "#FF7043", "#FDD835", "#FF8F00"];
+  return random(colors);
+}
+
+// medium-rich colour set for inner dots (option B)
+function randomInnerDotColor() {
+  let colors = [
+    "#FFE082", "#FFAB91", "#FF80AB",
+    "#80DEEA", "#C5E1A5", "#B39DDB",
+    "#FFF59D", "#90CAF9"
+  ];
+  return random(colors);
+}
+
+// medium-rich warm colours for outer halo
+function randomOuterDotColor() {
+  let colors = [
+    "#FF8A80", "#FFB74D", "#FFD54F",
+    "#FF80AB", "#FFAB91", "#F48FB1"
+  ];
+  return random(colors);
+}
+
+// centre dot colours
+function randomCenterDotColor() {
+  let colors = [
+    "#FFD740", "#FF6F00", "#F06292",
+    "#4FC3F7", "#81C784", "#BA68C8"
+  ];
   return random(colors);
 }
