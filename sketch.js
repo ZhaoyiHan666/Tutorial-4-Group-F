@@ -1,5 +1,4 @@
-//  Iteration 3 – small update on Version 2:
-// slightly less overlap + richer colours + no black centres
+//  Iteration 4 – update on Version 3:
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -12,7 +11,7 @@ function draw() {
   
   // how many circles we want to draw on the screen
   let circleCount = 15;
-  randomSeed(20251114); // keep layout stable if needed
+  randomSeed(20251114); 
 
   // store placed circles to reduce overlap
   let placed = [];
@@ -36,7 +35,6 @@ function draw() {
 
       for (let c of placed) {
         let d = dist(x, y, c.x, c.y);
-        // allow some touching but avoid big overlaps (option B)
         let minDist = (size * 0.5 + c.size * 0.5) * 0.9;
         if (d < minDist) {
           ok = false;
@@ -69,6 +67,18 @@ function drawCircle(x, y, size) {
   fill(randomMainColor()); 
   ellipse(0, 0, size);
 
+  // scattered small colourful dots inside the big circle
+  let scatterDots = 30; 
+  for (let i = 0; i < scatterDots; i++) {
+    let r = random(size * 0.05, size * 0.40); // stay inside the main disc
+    let a = random(360);
+    let px = cos(a) * r;
+    let py = sin(a) * r;
+    noStroke();
+    fill(randomScatterDotColor());
+    ellipse(px, py, size * 0.035);
+  }
+
   // ring lines around the circle
   stroke(randomRingColor()); 
   strokeWeight(2);
@@ -77,7 +87,7 @@ function drawCircle(x, y, size) {
     ellipse(0, 0, r);
   }
 
-  // inside dots – now colourful (option B: medium richness)
+  // inside dots – colourful 
   stroke(255);
   strokeWeight(1.4);
   let insideDots = 16;
@@ -137,7 +147,7 @@ function randomRingColor() {
   return random(colors);
 }
 
-// medium-rich colour set for inner dots (option B)
+// medium-rich colour set for inner dots 
 function randomInnerDotColor() {
   let colors = [
     "#FFE082", "#FFAB91", "#FF80AB",
@@ -161,6 +171,21 @@ function randomCenterDotColor() {
   let colors = [
     "#FFD740", "#FF6F00", "#F06292",
     "#4FC3F7", "#81C784", "#BA68C8"
+  ];
+  return random(colors);
+}
+
+// colours for scattered internal dots
+function randomScatterDotColor() {
+  let colors = [
+    "#FFFFFF",
+    "#FFEB3B",
+    "#FF7043",
+    "#EC407A",
+    "#29B6F6",
+    "#66BB6A",
+    "#F48FB1",
+    "#C5E1A5"
   ];
   return random(colors);
 }
